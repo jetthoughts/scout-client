@@ -66,6 +66,9 @@ module Scout
     end
 
     def refresh?
+      #miry: i need run only local plugins
+      return false
+      
       return true if !ping_key or account_public_key_changed? # fetch the plan again if the account key is modified/created
 
       url=URI.join( @server.sub("https://","http://"), "/clients/#{ping_key}/ping.scout")
@@ -292,7 +295,8 @@ module Scout
       take_snapshot if @directives['take_snapshots']
       process_signature_errors
       store_account_public_key
-      checkin
+      #miry: currently i need run only local plugins
+      #checkin
     end
     
     # Reports errors if there are any plugins with invalid signatures and sets a flag
@@ -405,7 +409,7 @@ module Scout
               @checkin[plural] << build_report(plugin, fields)
             end
           end
-          
+
           report_embedded_options(plugin,code_to_run)
           
           @history["last_runs"].delete(plugin['name'])

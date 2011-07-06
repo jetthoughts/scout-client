@@ -9,7 +9,7 @@ require "rubyforge"
 
 dir = File.dirname(__FILE__)
 lib = File.join(dir, "lib", "scout.rb")
-version = File.read(lib)[/^\s*VERSION\s*=\s*(['"])(\d\.\d\.\d)\1/, 2]
+version = File.read(lib)[/^\s*VERSION\s*=\s*(['"])(\d\.\d\.\d\.\d)\1/, 2]
 history = File.read("CHANGELOG").split(/^(===.*)/)
 changes ||= history[0..2].join.strip
 

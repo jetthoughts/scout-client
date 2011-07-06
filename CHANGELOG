@@ -1,3 +1,8 @@
+== 5.3.3.1
+
+* Do not check server for changes
+* Do not send report to server
+
 == 5.3.3
 
 * Sending embedded options to server for local & plugin overrides.
