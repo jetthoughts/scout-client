@@ -54,9 +54,10 @@ module Scout
       @new_plan     = false
       @local_plugin_path = File.dirname(history_file) # just put overrides and ad-hoc plugins in same directory as history file.
       @plugin_config_path = File.join(@local_plugin_path, "plugins.properties")
+      @plugin_options_path = File.join(@local_plugin_path, "plugins.options")
       @account_public_key_path = File.join(@local_plugin_path, "scout_rsa.pub")
       @plugin_config = load_plugin_configs(@plugin_config_path)
-
+      @plugin_options = load_plugin_options(@plugin_options_path)
       # the block is only passed for install and test, since we split plan retrieval outside the lockfile for run
       if block_given?
         load_history
@@ -163,6 +164,7 @@ module Scout
         end
       else
         info "Plan not modified."
+        @directives['interval'] = 0
         @plugin_plan = Array(@history["old_plugins"])
         @plugin_plan += get_local_plugins
         @directives = @history["directives"] || Hash.new
@@ -177,13 +179,12 @@ module Scout
       local_plugin_paths=Dir.glob(File.join(@local_plugin_path,"[a-zA-Z]*.rb"))
       local_plugin_paths.map do |plugin_path|
         name    = File.basename(plugin_path)
-        options = if directives = @plugin_plan.find { |plugin| plugin['filename'] == name }
-                     directives['options']
-                  else 
-                    nil
-                  end
-        begin
+        options = (directives = (@plugin_plan.find { |plugin| plugin['filename'] == name } || @plugin_options[name])) ?
+                     directives['options'] : nil
+        info "Options for #{name}: #{options}"
+        result = begin
           {
+            'id'              => @plugin_options[name]['id'],
             'name'            => name,
             'local_filename'  => name,
             'origin'          => 'LOCAL',
@@ -296,7 +297,7 @@ module Scout
       process_signature_errors
       store_account_public_key
       #miry: currently i need run only local plugins
-      #checkin
+      checkin
     end
     
     # Reports errors if there are any plugins with invalid signatures and sets a flag
@@ -546,7 +547,7 @@ module Scout
       return unless @server
       options.merge!(:client_version => Scout::VERSION)
       URI.join( @server,
-                "/clients/CLIENT_KEY/#{url_name}.scout".
+                "/collector/clients/CLIENT_KEY/#{url_name}.scout".
                   gsub(/\bCLIENT_KEY\b/, @client_key).
                   gsub(/\b[A-Z_]+\b/) { |k| options[k.downcase.to_sym] || k } )
     end
@@ -609,6 +610,7 @@ module Scout
       gzip =  Zlib::GzipWriter.new(io)
       gzip << @checkin.to_json
       gzip.close
+
       post( urlify(:checkin),
             "Unable to check in with the server.",
             io.string,
@@ -663,6 +665,10 @@ module Scout
         debug "No Plugin Configs at #{path}"
       end
       return temp_configs
+    end
+    
+    def load_plugin_options(path)
+      YAML::load_file(path)
     end
   end
 end

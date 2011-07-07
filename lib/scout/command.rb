@@ -145,7 +145,7 @@ module Scout
     end
 
     def initialize(options, args)
-      @server  = options[:server]  || "https://scoutapp.com/"
+      @server  = options[:server]  || "http://localhost:3000/collector"
       @history = options[:history] ||
                  File.join( File.join( (File.expand_path("~") rescue "/"),
                                        ".scout" ),

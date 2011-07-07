@@ -1,3 +1,6 @@
+# encoding: utf-8
+
+require 'psych'
 require "rake/rdoctask"
 require "rake/testtask"
 require "rake/gempackagetask"
@@ -9,8 +12,8 @@ require "rubyforge"
 
 dir = File.dirname(__FILE__)
 lib = File.join(dir, "lib", "scout.rb")
-version = File.read(lib)[/^\s*VERSION\s*=\s*(['"])(\d\.\d\.\d\.\d)\1/, 2]
-history = File.read("CHANGELOG").split(/^(===.*)/)
+version = File.read(lib, :encoding => "UTF-8")[/^\s*VERSION\s*=\s*(['"])(\d\.\d\.\d\.\d)\1/, 2]
+history = File.read("CHANGELOG", :encoding => "UTF-8").split(/^(===.*)/)
 changes ||= history[0..2].join.strip
 
 need_tar = true
