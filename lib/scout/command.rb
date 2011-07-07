@@ -70,7 +70,7 @@ module Scout
         opts.on( "-n", "--name NAME", String,
                  "Optional name to display for this server." ) do |server_name|
           options[:server_name] = server_name
-        end
+        end        
 
         opts.separator " "
         opts.separator "Common Options:"
